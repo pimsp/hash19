@@ -20,6 +20,16 @@ typedef vector<ii> vii;
 
 ostream& operator<<(ostream &out, const ii &pr) { return out << '(' << pr.x << ',' << pr.y << ')'; }
 
+
+void outp(vi a){
+	cout << a[0];
+	if(a.size() == 2)
+	{
+		cout << " " << a[1];
+	}
+	cout << endl;
+}
+
 struct photo{
 	bool hor;
 	vi tags;
@@ -60,7 +70,7 @@ typedef vector<photo> vp;
 vp dat;
 
 
-const ll MAXN = 50000;
+const ll MAXN = 2000;
 const ll INF = (1LL << 60);
 vvi a(MAXN + 1, vi(MAXN + 1)); // matrix, 1-based
 
@@ -94,11 +104,48 @@ vi minimum_assignment(ll n, ll m) { // n rows, m columns. Resultaat match p[j],j
 	return p;
 }
 
+vvi ars;
+vvi phs;
+
+vi merge(vi a, vi b){
+	int i1 = 0, i2 = 0;
+	vi ans;
+	while(true){
+		if(i1 == a.size()){
+			rep(i,i2,b.size()){
+				ans.pb(b[i]);
+			}
+			return ans;
+		}
+		if(i2 == b.size()){
+			rep(i,i1,a.size()){
+				ans.pb(a[i]);
+			}
+			return ans;
+		}
+		if(a[i1] == b[i2]){
+			ans.pb(a[i1]);
+			i1++;
+			i2++;
+			continue;
+		}
+		if(a[i1] < b[i2]){
+			ans.pb(a[i1]);
+			i1++;
+			continue;
+		}
+		ans.pb(b[i2]);
+		i2++;
+		continue;
+	}
+}
+
 void run()
 {
 	ll n;
 	cin >> n;
 	dat.rs(n);
+	vi hr, vr;
 	rep(i,0,n){
 		char c;
 		cin >> c;
@@ -111,18 +158,36 @@ void run()
 			dat[i].tags.pb(hash<string>()(s));
 			sort(all(dat[i].tags));
 		}
+		if(dat[i].hor)
+			hr.pb(i);
+		else
+			vr.pb(i);
 	}
-	ll t = n/2;
+	
+	rep(i,0,hr.size()){
+		ars.pb(dat[hr[i]].tags);
+		phs.pb({hr[i]});
+	}
+	
+	rep(j,0,vr.size()/2){
+		ll p1 = vr[2*j], p2 = vr[2*j+1];
+		ars.pb(merge(dat[p1].tags,dat[p2].tags));
+		phs.pb({p1,p2});
+	}
+	
+	ll t = ars.size()/2;
 	rep(i,0,t){
 		rep(j,0,t){
-			a[i+1][j+1] = score(dat[i].tags,dat[j+t].tags);
+			a[i+1][j+1] = score(ars[i],ars[j+t]);
 		}
 	}
 	vi p = minimum_assignment(t,t);
 	cout << 2*t << endl;
-	rep(i,0,t){
+	rep(i,0,t){	
 		cout << p[i+1]-1 << endl;
+		outp(phs[p[i+1]-1]);
 		cout << i + t << endl;
+		outp(phs[i + t]);
 	}
 
 }
