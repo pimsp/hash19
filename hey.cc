@@ -74,6 +74,7 @@ vector<ii> matched;
 
 struct photo {
 	bool hor;
+	int id[2];
 	vi tags;
 };
 
@@ -104,6 +105,7 @@ void run() {
 	cin >> n;
 
 	photos.clear();
+	vector<photo> vphotos;
 
 	unordered_map<string, int> str_lookup;
 	int nr_strs = 0;
@@ -112,15 +114,26 @@ void run() {
 		char dir;
 		int m;
 		cin >> dir >> m;
-		photos.pb({dir == 'H', {}});
+		photo ph = {dir == 'H', {i,-1}, {}};
 		REP(j, m) {
 			string s;
 			cin >> s;
 			if (str_lookup.find(s) == str_lookup.end())
 				str_lookup[s] = ++nr_strs;
-			photos.back().tags.pb(str_lookup[s]);
+			ph.tags.pb(str_lookup[s]);
 		}
+		sort(all(ph.tags));
+		( ph.hor ? photos : vphotos ).pb( ph );
 	}
+
+	random_shuffle( all(vphotos) );
+	for( ll i = 0; i+1 < vphotos.size(); i += 2 ) {
+		vector<int> x( vphotos[i].tags.size() + vphotos[i+1].tags.size() );
+		auto itr = set_union( vphotos[i].tags.begin(), vphotos[i].tags.end(), vphotos[i+1].tags.begin(), vphotos[i+1].tags.end(), x.begin() );
+		x.resize(itr-x.begin());
+		photos.pb( { false, { vphotos[i].id[0], vphotos[i+1].id[0] }, x } );
+	}
+	n = photos.size();
 
 	occ.resize(nr_strs + 1);
 	REP(i, n) {
@@ -205,7 +218,13 @@ void run()
 	cerr << "-------------------------------------------" << endl;
 	cerr << TS << endl;
 	cout << n << endl;
-	rep(i,0,n) cout << order[i] << endl;
+	rep(i,0,n) {
+		cout << photos[order[i]].id[0];
+		if( not photos[order[i]].hor ) {
+			cout << " " << photos[order[i]].id[1];
+		}
+		cout << endl;
+	} 
 }
 
 int main()
