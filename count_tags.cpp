@@ -9,11 +9,15 @@ int main() {
 	int n;
 	cin >> n;
 	unordered_map<string, int> H;
+
+	map<int, int> taglens;
+
 	while (n--) {
 		char ch;
 		cin >> ch;
 		int m;
 		cin >> m;
+		taglens[m]++;
 		for (int i = 0; i < m; i++) {
 			string x;
 			cin >> x;
@@ -24,7 +28,13 @@ int main() {
 
 	map<int, int> freq;
 	for (auto pr : H) freq[pr.second]++;
+
+	cout << "Tag frequencies: " << endl;
 	for (auto pr : freq) cout << pr.x << "x: " << pr.y << ", ";
+	cout << endl;
+
+	cout << "Tag lengths: " << endl;
+	for (auto pr : taglens) cout << pr.x << "x: " << pr.y << ", ";
 	cout << endl;
 	return 0;
 }
