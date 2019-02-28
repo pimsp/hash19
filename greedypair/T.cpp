@@ -59,6 +59,41 @@ typedef vector<photo> vp;
 
 vp dat;
 
+
+const ll MAXN = 50000;
+const ll INF = (1LL << 60);
+vvi a(MAXN + 1, vi(MAXN + 1)); // matrix, 1-based
+
+vi minimum_assignment(ll n, ll m) { // n rows, m columns. Resultaat match p[j],j
+	vi u(n + 1), v(m + 1), p(m + 1), way(m + 1);
+	for (ll i = 1; i <= n; i++) {
+		p[0] = i;
+		ll j0 = 0;
+		vi minv(m + 1, INF);
+		vector<char> used(m + 1, false);
+		do {
+			used[j0] = true;
+			ll i0 = p[j0], delta = INF, j1;
+			for (ll j = 1; j <= m; j++)
+				if (!used[j]) {
+					ll cur = a[i0][j] - u[i0] - v[j];
+					if (cur < minv[j]) minv[j] = cur, way[j] = j0;
+					if (minv[j] < delta) delta = minv[j], j1 = j;
+				}
+			for (ll j = 0; j <= m; j++) {
+				if(used[j]) u[p[j]] += delta, v[j] -= delta;
+				else minv[j] -= delta;
+			}
+			j0 = j1;
+		} while (p[j0] != 0);
+		do {
+			ll j1 = way[j0]; p[j0] = p[j1]; j0 = j1;
+		} while (j0);
+	}
+	// column j is assigned to row p[j]
+	return p;
+}
+
 void run()
 {
 	ll n;
@@ -77,8 +112,19 @@ void run()
 			sort(all(dat[i].tags));
 		}
 	}
-	
-	
+	ll t = n/2;
+	rep(i,0,t){
+		rep(j,0,t){
+			a[i+1][j+1] = score(dat[i].tags,dat[j+t].tags);
+		}
+	}
+	vi p = minimum_assignment(t,t);
+	cout << 2*t << endl;
+	rep(i,0,t){
+		cout << p[i+1]-1 << endl;
+		cout << i + t << endl;
+	}
+
 }
 
 signed main()
